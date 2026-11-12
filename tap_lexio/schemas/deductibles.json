@@ -1,0 +1,126 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifiant de la franchise."
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "EUR",
+        "XPF",
+        "CHF",
+        "CAD",
+        "GBP",
+        "USD",
+        "XOF"
+      ],
+      "description": "Devise ISO 4217 : tous les montants de la ressource sont dans cette devise."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Nom affiché au client."
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 500
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Description libre ; null si absente."
+    },
+    "categoryId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Catégorie tarifaire à laquelle l’élément est réservé ; null : toutes les catégories."
+    },
+    "excessAmount": {
+      "type": "number",
+      "description": "Montant laissé à la charge du client en cas de sinistre. Hors total de la location et sans TVA : il n’est pas facturé."
+    },
+    "price": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "const": "FIXED_PER_DAY",
+              "description": "Prix fixe par jour facturé."
+            },
+            "amountHT": {
+              "type": "number",
+              "description": "Prix HT par jour facturé ; 0 : offert."
+            }
+          },
+          "required": [
+            "mode",
+            "amountHT"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "const": "PERCENT_OF_RENTAL",
+              "description": "Pourcentage du prix de location du véhicule."
+            },
+            "percent": {
+              "type": "number",
+              "minimum": 0.01,
+              "maximum": 100,
+              "description": "Pourcentage du prix HT de location du véhicule, hors options. Au plus 2 décimales."
+            }
+          },
+          "required": [
+            "mode",
+            "percent"
+          ]
+        }
+      ],
+      "description": "Prix HT de cette franchise (son rachat) pour le client.",
+      "type": "object"
+    },
+    "linkedDepositId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Caution retenue avec cette franchise quand une offre omet `depositId`, si elle est active ; null (ou caution inactive) : la caution par défaut s’applique (`isDefault` des cautions). Pour une offre sans caution, envoyez `depositId: null`. À l’écriture : caution active, globale ou de la catégorie de l"
+    },
+    "isDefault": {
+      "type": "boolean",
+      "description": "Franchise retenue quand une offre omet `deductibleId` : défaut de la catégorie du véhicule, sinon défaut global. Un seul défaut par catégorie et un seul global ; en désigner un autre retire ce statut à l’ancien. Un défaut est toujours actif."
+    },
+    "isActive": {
+      "type": "boolean",
+      "description": "false : retiré de la vente ; les locations qui le portent le gardent."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Dernière modification."
+    }
+  }
+}

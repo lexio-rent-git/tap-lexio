@@ -1,0 +1,73 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifiant du blocage."
+    },
+    "vehicleId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Véhicule bloqué (`GET /vehicles/{vehicleId}`)."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "MAINTENANCE",
+        "REPAIR",
+        "ACCIDENT",
+        "INSPECTION",
+        "CLEANING",
+        "PERSONAL_USE",
+        "LOAN",
+        "EXTERNAL_BOOKING",
+        "OTHER"
+      ],
+      "description": "Motif du blocage."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Libellé saisi dans Lexio."
+    },
+    "startAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Début du blocage, heure du loueur avec décalage."
+    },
+    "endAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Fin du blocage, exclue."
+    },
+    "timezone": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Fuseau du loueur."
+    },
+    "maintenanceRecordId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Entretien auquel le blocage est rattaché dans Lexio ; le blocage est supprimé avec lui. null pour un blocage sans entretien."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Création."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Dernière modification."
+    }
+  }
+}

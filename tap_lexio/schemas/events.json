@@ -1,0 +1,54 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifiant de l’événement."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "rental.created",
+        "rental.updated",
+        "rental.cancelled",
+        "rental.deleted"
+      ],
+      "description": "`rental.created` : location créée ; `rental.updated` : location modifiée (statut, dates, véhicule, prix, options, paiements, lieux, notes…) ; `rental.cancelled` : location annulée ; `rental.deleted` : location supprimée."
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Instant du changement. L’ordre du flux est celui de la page, pas cet instant."
+    },
+    "resource": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "RENTAL",
+          "description": "Type de la ressource concernée."
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Identifiant de la location (`rentalId`)."
+        },
+        "partnerReference": {
+          "description": "Numéro de commande du partenaire ; null si absent.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "partnerReference"
+      ],
+      "description": "Location concernée, à relire par `GET /rentals/{rentalId}`."
+    }
+  },
+  "description": "Changement d’une location ; relisez-la pour obtenir son état."
+}

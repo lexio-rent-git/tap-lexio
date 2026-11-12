@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tap-lexio"
+version = "0.1.0"
+description = "Singer tap for the Lexio Rent API (car rental software): fleet, customers, rentals, maintenance and rental events. Built with the Meltano Singer SDK."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [{ name = "Lexio Rent", email = "contact@lexio.rent" }]
+keywords = ["singer", "meltano", "meltano-sdk", "elt", "lexio", "lexio-rent", "car-rental", "fleet-management"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Topic :: Database",
+  "Topic :: Office/Business",
+]
+dependencies = ["singer-sdk>=0.47,<1", "typing-extensions>=4.5; python_version < '3.12'"]
+
+[project.optional-dependencies]
+test = ["pytest>=7", "singer-sdk[testing]>=0.47,<1"]
+
+[project.scripts]
+tap-lexio = "tap_lexio.tap:TapLexio.cli"
+
+[project.urls]
+Homepage = "https://lexio.rent/logiciel-location-voiture"
+"API reference" = "https://docs.lexio.rent"
+Source = "https://github.com/lexio-rent-git/tap-lexio"
+Issues = "https://github.com/lexio-rent-git/tap-lexio/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tap_lexio"]
+
+[tool.hatch.build.targets.sdist]
+include = ["tap_lexio", "tests", "scripts", "spec", "meltano.yml", "README.md", "LICENSE", "CHANGELOG.md"]

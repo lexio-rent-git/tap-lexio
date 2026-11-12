@@ -1,0 +1,231 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifiant du client."
+    },
+    "isCompany": {
+      "type": "boolean",
+      "description": "true : société ; false : particulier. Les champs de l’autre type valent null."
+    },
+    "partnerCode": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 50
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Code partenaire de la plateforme dont une réservation a créé ce client ; null pour un client du loueur."
+    },
+    "firstName": {
+      "description": "Prénom (particulier) ; null pour une société ou une fiche anonymisée.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "lastName": {
+      "description": "Nom de famille (particulier), publié en majuscules ; null pour une société ou une fiche anonymisée.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "companyName": {
+      "description": "Raison sociale (société) ; null pour un particulier.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "email": {
+      "description": "Email, en minuscules ; celui d’un particulier est unique pour un même `partnerCode`. null si absent.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "phone": {
+      "description": "Téléphone, au format international quand le pays est connu ; null si absent.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "birthDate": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Date de naissance (particulier), `YYYY-MM-DD`."
+    },
+    "birthCity": {
+      "description": "Lieu de naissance (particulier).",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "nationality": {
+      "description": "Nationalité, en texte libre (particulier).",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "licenseNumber": {
+      "description": "Numéro du permis de conduire (particulier).",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "licenseIssueDate": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Date de délivrance du permis de conduire (particulier), `YYYY-MM-DD`."
+    },
+    "address": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "street": {
+              "description": "Numéro et voie.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "complement": {
+              "description": "Complément d’adresse (bâtiment, étage…).",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "postalCode": {
+              "description": "Code postal.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "city": {
+              "description": "Ville.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "country": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Pays, code ISO 3166-1 alpha-2 ; null pour une ancienne valeur illisible."
+            }
+          },
+          "required": [
+            "street",
+            "complement",
+            "postalCode",
+            "city",
+            "country"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Adresse postale ; null si aucune."
+    },
+    "companyRegistrationNumber": {
+      "description": "Numéro d’immatriculation de la société. En France et dans les DROM : SIREN, 9 chiffres, requis pour une société ; ailleurs, format du pays. Pays : celui de l’adresse, sinon celui du loueur.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "companyEstablishmentNumber": {
+      "description": "Numéro de l’établissement (en France : SIRET, 14 chiffres).",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "vatNumber": {
+      "description": "Numéro de TVA intracommunautaire de la société.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "acquisitionSource": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "ONLINE",
+            "PHONE",
+            "WALKIN",
+            "PARTNER",
+            "OTHER"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Canal par lequel le client est arrivé. null si inconnu."
+    },
+    "isBlocked": {
+      "type": "boolean",
+      "description": "true : client bloqué par le loueur, une nouvelle location à son nom est refusée."
+    },
+    "anonymizedAt": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Date de l’anonymisation : données personnelles effacées, fiche en lecture seule. null sinon."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Création, heure du loueur avec décalage."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Dernière modification."
+    }
+  }
+}

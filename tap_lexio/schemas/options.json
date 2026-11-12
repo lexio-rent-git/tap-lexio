@@ -1,0 +1,157 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifiant de l’option."
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "EUR",
+        "XPF",
+        "CHF",
+        "CAD",
+        "GBP",
+        "USD",
+        "XOF"
+      ],
+      "description": "Devise ISO 4217 : tous les montants de la ressource sont dans cette devise."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Nom affiché au client."
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 500
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Description libre ; null si absente."
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "STANDARD",
+        "ADDITIONAL_DRIVER",
+        "YOUNG_DRIVER"
+      ],
+      "description": "`STANDARD` : option vendue à la quantité. `ADDITIONAL_DRIVER` : conducteur additionnel, réservable par une clé interne seulement. `YOUNG_DRIVER` : supplément jeune conducteur, appliqué par Lexio d’après l’âge des conducteurs, jamais demandé directement. Une seule option de chacun de ces deux dernier"
+    },
+    "group": {
+      "type": "string",
+      "enum": [
+        "COMFORT",
+        "PROTECTION",
+        "ACCESSORIES",
+        "DELIVERY",
+        "SERVICES",
+        "OTHER"
+      ],
+      "description": "Rubrique d’affichage de l’option."
+    },
+    "price": {
+      "type": "object",
+      "properties": {
+        "unit": {
+          "type": "string",
+          "enum": [
+            "DAY",
+            "HOUR",
+            "WEEK",
+            "RENTAL"
+          ],
+          "description": "`DAY` : par jour facturé ; `HOUR` : par heure de location ; `WEEK` : par semaine entamée ; `RENTAL` : une fois par location."
+        },
+        "amountHT": {
+          "type": "number",
+          "description": "Prix HT d’une unité de `unit`, pour un exemplaire ; 0 : option offerte antérieure."
+        },
+        "maxAmountHT": {
+          "anyOf": [
+            {
+              "type": "number",
+              "description": "Montant en unités majeures, sur la grille de la devise de la ressource."
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Plafond HT par exemplaire sur toute la location ; null : sans plafond."
+        }
+      },
+      "required": [
+        "unit",
+        "amountHT",
+        "maxAmountHT"
+      ],
+      "description": "Prix HT de l’option et son plafond."
+    },
+    "maxQuantity": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "description": "Exemplaires au plus par location. Une option conducteur vaut toujours 1 ici : le conducteur additionnel se réserve jusqu’à 4 fois, borne lue dans `choices.options[].maxBookableQuantity` du devis."
+    },
+    "stockCount": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000,
+      "description": "Exemplaires louables en même temps, toutes locations confondues ; ignoré pour une option conducteur. Le reste disponible sur une période se lit dans `maxBookableQuantity` du devis."
+    },
+    "availableMonths": {
+      "maxItems": 12,
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 12
+      },
+      "description": "Mois où l’option se vend (1 = janvier), chacun une fois : elle est proposée si la location touche l’un d’eux ; [] : toute l’année."
+    },
+    "youngDriverAgeThreshold": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 16,
+          "maximum": 99
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Âge au départ en dessous duquel le supplément s’applique à un conducteur ; null pour une option qui n’est pas `YOUNG_DRIVER`."
+    },
+    "imageUrls": {
+      "maxItems": 1,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      },
+      "description": "Image de l’option, URL signée valable une heure, à ne pas stocker ; [] sans image ; se dépose dans Lexio."
+    },
+    "isActive": {
+      "type": "boolean",
+      "description": "false : option retirée de la vente."
+    },
+    "displayOrder": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Rang d’affichage ; ordre de la liste."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Dernière modification."
+    }
+  }
+}

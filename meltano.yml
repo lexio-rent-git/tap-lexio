@@ -1,0 +1,37 @@
+version: 1
+send_anonymous_usage_stats: false
+project_id: tap-lexio
+default_environment: dev
+environments:
+- name: dev
+plugins:
+  extractors:
+  - name: tap-lexio
+    namespace: tap_lexio
+    pip_url: -e .
+    capabilities:
+    - about
+    - activate-version
+    - batch
+    - catalog
+    - discover
+    - schema-flattening
+    - state
+    - stream-maps
+    - structured-logging
+    settings:
+    - name: api_key
+      kind: password
+      label: API key
+      sensitive: true
+    - name: api_url
+      kind: string
+      label: API URL
+    - name: blocks_days_back
+      kind: integer
+    - name: blocks_days_ahead
+      kind: integer
+  loaders:
+  - name: target-jsonl
+    variant: andyh1203
+    pip_url: target-jsonl

@@ -1,0 +1,406 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifiant du véhicule."
+    },
+    "plate": {
+      "description": "Immatriculation, en majuscules ; null si le véhicule n’en a pas. Une plaque ou un numéro de série est toujours présent.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "serialNumber": {
+      "description": "Numéro de série (deux-roues non immatriculé, par exemple) ; null si absent.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "vin": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 17
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Numéro d’identification du véhicule (VIN, 17 caractères au plus) ; null si absent."
+    },
+    "name": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 100
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Nom d’usage donné par le loueur (ex. « 208 blanche ») ; null si absent."
+    },
+    "brand": {
+      "type": "string",
+      "maxLength": 50,
+      "description": "Marque (ex. Peugeot)."
+    },
+    "model": {
+      "type": "string",
+      "maxLength": 50,
+      "description": "Modèle (ex. 208)."
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 1000
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Description libre ; null si absente."
+    },
+    "color": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 30
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Couleur, en texte libre ; null si absente."
+    },
+    "vehicleType": {
+      "type": "string",
+      "enum": [
+        "CITY",
+        "COMPACT",
+        "CROSSOVER",
+        "SEDAN",
+        "BREAK",
+        "SUV",
+        "OFF_ROAD",
+        "PICKUP",
+        "MINIVAN",
+        "VAN",
+        "UTILITY",
+        "COUPE",
+        "CONVERTIBLE",
+        "SPORT",
+        "LUXURY",
+        "MOTORCYCLE",
+        "SCOOTER"
+      ],
+      "description": "Type de véhicule : il fixe la famille et les champs applicables."
+    },
+    "family": {
+      "type": "string",
+      "enum": [
+        "CAR",
+        "TWO_WHEELER"
+      ],
+      "description": "Famille, déduite de `vehicleType`."
+    },
+    "energy": {
+      "type": "string",
+      "enum": [
+        "FUEL",
+        "ELECTRIC"
+      ],
+      "description": "Énergie, déduite de `fuelType`."
+    },
+    "fuelType": {
+      "type": "string",
+      "enum": [
+        "PETROL",
+        "DIESEL",
+        "LPG",
+        "HYBRID",
+        "PLUGIN_HYBRID",
+        "ELECTRIC"
+      ],
+      "description": "Carburant ou motorisation : il fixe l’énergie et les champs applicables."
+    },
+    "transmission": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "MANUAL",
+            "AUTOMATIC"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Boîte de vitesses ; null si non applicable au profil (deux-roues électrique)."
+    },
+    "seats": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50,
+      "description": "Nombre de places : 1 à 50 pour une voiture, 1 à 3 pour un deux-roues."
+    },
+    "doors": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 10
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Nombre de portes ; null pour un deux-roues."
+    },
+    "modelYear": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1900,
+          "maximum": 2100
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Année modèle ; null si inconnue."
+    },
+    "registrationDate": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Date de première immatriculation (`YYYY-MM-DD`), jamais dans le futur ; null si inconnue."
+    },
+    "odometerKm": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000000,
+      "description": "Kilométrage au compteur, en km."
+    },
+    "powerKw": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2000
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Puissance en kW ; null si inconnue. Un thermique va jusqu’à 1471 kW (2000 ch), un électrique jusqu’à 2000 kW."
+    },
+    "fuelCapacityLiters": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 500,
+          "description": "Au plus 1 décimale."
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Capacité du réservoir, en litres ; null pour un électrique ou si inconnue."
+    },
+    "batteryCapacityKwh": {
+      "anyOf": [
+        {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 300,
+          "description": "Au plus 2 décimales."
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Capacité de la batterie de traction, en kWh ; null si non applicable ou inconnue."
+    },
+    "rangeKm": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2000
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Autonomie électrique, en km ; null si non applicable ou inconnue."
+    },
+    "chargePortType": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "TYPE_1",
+            "TYPE_2",
+            "CCS",
+            "CHADEMO",
+            "DC",
+            "DOMESTIC"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Prise de recharge ; null si non applicable ou inconnue."
+    },
+    "equipment": {
+      "maxItems": 40,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "AIR_CONDITIONING",
+          "HEATED_SEATS",
+          "LEATHER_SEATS",
+          "KEYLESS_START",
+          "ELECTRIC_TRUNK",
+          "CONVERTIBLE_ROOF",
+          "SUNROOF",
+          "PANORAMIC_ROOF",
+          "GPS",
+          "BLUETOOTH",
+          "CARPLAY",
+          "ANDROID_AUTO",
+          "WIRELESS_CHARGING",
+          "ABS",
+          "ESP",
+          "CRUISE_CONTROL",
+          "ADAPTIVE_CRUISE_CONTROL",
+          "BLIND_SPOT_MONITOR",
+          "PARKING_SENSORS",
+          "REAR_CAMERA",
+          "PARKING_ASSIST",
+          "DASHCAM",
+          "TURBO",
+          "POWER_STEERING",
+          "START_STOP",
+          "ADBLUE",
+          "TOW_BAR",
+          "TOP_CASE",
+          "WINDSHIELD",
+          "HEATED_GRIPS",
+          "USB_PORT",
+          "TRACTION_CONTROL",
+          "ANTI_THEFT_ALARM",
+          "REMOVABLE_BATTERY",
+          "SPARE_BATTERY"
+        ]
+      },
+      "description": "Équipements présents, parmi ceux de la famille et de l’énergie du véhicule."
+    },
+    "categoryId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Catégorie tarifaire (`GET /categories/{categoryId}`) ; null : véhicule sans prix, non réservable (`NO_PRICING_CATEGORY`)."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "OPERATIONAL",
+        "BREAKDOWN"
+      ],
+      "description": "`BREAKDOWN` : véhicule en panne, non réservable. `OPERATIONAL` sinon, location en cours comprise."
+    },
+    "isActive": {
+      "type": "boolean",
+      "description": "false : véhicule mis hors service par le loueur, non réservable (`INACTIVE`)."
+    },
+    "isArchived": {
+      "type": "boolean",
+      "description": "true : véhicule archivé, sorti de la flotte et non modifiable."
+    },
+    "isBookable": {
+      "type": "boolean",
+      "description": "true si `notBookableReasons` est vide. Ne dit rien de l’occupation sur une période : voir `GET /availability`."
+    },
+    "notBookableReasons": {
+      "maxItems": 5,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "INACTIVE",
+          "ARCHIVED",
+          "BREAKDOWN",
+          "MAINTENANCE_OVERDUE",
+          "NO_PRICING_CATEGORY"
+        ]
+      },
+      "description": "Raisons durables qui empêchent toute réservation ; `MAINTENANCE_OVERDUE` : entretien ou contrôle technique en retard, quand le loueur bloque les réservations sur ce retard."
+    },
+    "isMaintenanceTracked": {
+      "type": "boolean",
+      "description": "true une fois le suivi d’entretien démarré (`maintenanceTrackingMode`) ; il ne s’arrête plus."
+    },
+    "maintenanceTrackingMode": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "FROM_ZERO",
+            "ASSUME_UP_TO_DATE",
+            "MANUAL_HISTORY"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Mode de démarrage du suivi d’entretien, définitif une fois posé ; null : suivi non démarré. `FROM_ZERO` (véhicule neuf ou sans historique fiable) et `MANUAL_HISTORY` (historique saisi par `POST /maintenance-records`) comptent les échéances depuis 0 km et la première immatriculation ; `ASSUME_UP_TO_D"
+    },
+    "displayOrder": {
+      "type": "integer",
+      "description": "Rang d’affichage choisi dans Lexio ; ordre de la liste."
+    },
+    "imageUrls": {
+      "maxItems": 30,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      },
+      "description": "Photos de présentation, URL publiques stables, dans l’ordre choisi dans Lexio."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Création, heure du loueur avec décalage."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Dernière modification."
+    }
+  }
+}

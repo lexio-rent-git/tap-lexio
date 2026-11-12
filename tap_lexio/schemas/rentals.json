@@ -1,0 +1,786 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifiant de la location."
+    },
+    "number": {
+      "type": "string",
+      "description": "Numéro de la location dans Lexio, unique dans l’organisation et jamais réattribué."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "RESERVED",
+        "PENDING_APPROVAL",
+        "IN_PROGRESS",
+        "COMPLETED",
+        "CANCELLED"
+      ],
+      "description": "`PENDING_APPROVAL` : demande à approuver par le loueur ; `RESERVED` : réservée ; `IN_PROGRESS` : véhicule remis ; `COMPLETED` : véhicule rendu ; `CANCELLED` : annulée."
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "ONLINE",
+        "PHONE",
+        "WALKIN",
+        "PARTNER",
+        "OTHER"
+      ],
+      "description": "Canal de vente : `ONLINE` (en ligne), `PHONE` (téléphone), `WALKIN` (sur place), `PARTNER` (partenaire, toute location créée par une clé partenaire), `OTHER`."
+    },
+    "partnerCode": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 50
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Code partenaire de la clé qui a créé la location ; null hors partenaire."
+    },
+    "partnerReference": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 255
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Numéro de commande du partenaire, unique par code partenaire ; null si absent."
+    },
+    "period": {
+      "type": "object",
+      "properties": {
+        "startAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Début contractuel, à l’heure du loueur."
+        },
+        "endAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Fin contractuelle, à l’heure du loueur."
+        },
+        "timezone": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Fuseau horaire IANA du loueur."
+        },
+        "billedDays": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Jours facturés : tranches de 24 h entamées, sans compter une dernière tranche d’au plus `toleranceHours` heures (`GET /organization`) ; 1 au minimum."
+        },
+        "durationMinutes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Durée exacte entre `startAt` et `endAt`, en minutes."
+        }
+      },
+      "required": [
+        "startAt",
+        "endAt",
+        "timezone",
+        "billedDays",
+        "durationMinutes"
+      ],
+      "description": "Période contractuelle, bornes à l’heure du loueur."
+    },
+    "actualStartAt": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Départ réel (`pickup`) ; null tant que le véhicule n’est pas remis."
+    },
+    "actualEndAt": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Retour réel (`return`) ; null tant que le véhicule n’est pas rendu."
+    },
+    "vehicle": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Identifiant du véhicule."
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 100
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Nom d’usage donné par le loueur (ex. « 208 blanche ») ; null si absent."
+        },
+        "brand": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Marque (ex. Peugeot)."
+        },
+        "model": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Modèle (ex. 208)."
+        },
+        "vehicleType": {
+          "type": "string",
+          "enum": [
+            "CITY",
+            "COMPACT",
+            "CROSSOVER",
+            "SEDAN",
+            "BREAK",
+            "SUV",
+            "OFF_ROAD",
+            "PICKUP",
+            "MINIVAN",
+            "VAN",
+            "UTILITY",
+            "COUPE",
+            "CONVERTIBLE",
+            "SPORT",
+            "LUXURY",
+            "MOTORCYCLE",
+            "SCOOTER"
+          ],
+          "description": "Type de véhicule : il fixe la famille et les champs applicables."
+        },
+        "plate": {
+          "description": "Immatriculation, en majuscules ; null si le véhicule n’en a pas. Une plaque ou un numéro de série est toujours présent.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "serialNumber": {
+          "description": "Numéro de série (deux-roues non immatriculé, par exemple) ; null si absent.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "brand",
+        "model",
+        "vehicleType",
+        "plate",
+        "serialNumber"
+      ],
+      "description": "Véhicule actuellement affecté à la location."
+    },
+    "customer": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Identifiant du client."
+        },
+        "isCompany": {
+          "type": "boolean",
+          "description": "true : société ; false : particulier. Les champs de l’autre type valent null."
+        },
+        "firstName": {
+          "description": "Prénom (particulier) ; null pour une société ou une fiche anonymisée.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "lastName": {
+          "description": "Nom de famille (particulier), publié en majuscules ; null pour une société ou une fiche anonymisée.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "companyName": {
+          "description": "Raison sociale (société) ; null pour un particulier.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "email": {
+          "description": "Email, en minuscules ; celui d’un particulier est unique pour un même `partnerCode`. null si absent.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "phone": {
+          "description": "Téléphone, au format international quand le pays est connu ; null si absent.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "isCompany",
+        "firstName",
+        "lastName",
+        "companyName",
+        "email",
+        "phone"
+      ],
+      "description": "Titulaire de la location."
+    },
+    "pickupLocation": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "locationId": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Lieu du catalogue (`GET /locations`) ; null pour une adresse libre."
+            },
+            "name": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Nom du lieu, copié à l’enregistrement ; null si aucun."
+            },
+            "address": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Adresse, copiée à l’enregistrement ; null si aucune."
+            }
+          },
+          "required": [
+            "locationId",
+            "name",
+            "address"
+          ],
+          "description": "Lieu de départ ou de retour, copié à l’enregistrement : une modification ultérieure du catalogue ne le change pas."
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Lieu de départ ; null si non renseigné."
+    },
+    "returnLocation": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "locationId": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Lieu du catalogue (`GET /locations`) ; null pour une adresse libre."
+            },
+            "name": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Nom du lieu, copié à l’enregistrement ; null si aucun."
+            },
+            "address": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Adresse, copiée à l’enregistrement ; null si aucune."
+            }
+          },
+          "required": [
+            "locationId",
+            "name",
+            "address"
+          ],
+          "description": "Lieu de départ ou de retour, copié à l’enregistrement : une modification ultérieure du catalogue ne le change pas."
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Lieu de retour ; null si non renseigné."
+    },
+    "mileage": {
+      "type": "object",
+      "properties": {
+        "mileagePackageId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Forfait kilométrique du catalogue (`GET /mileage-packages`) ; null sans forfait."
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 100
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Nom du forfait ; null sans forfait."
+        },
+        "isUnlimited": {
+          "type": "boolean",
+          "description": "true : aucun plafond ; `includedKm` et `overageRatePerKmHT` valent alors null."
+        },
+        "includedKm": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Kilomètres inclus pour toute la période, pas par jour ; null si illimité."
+        },
+        "overageRatePerKmHT": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 999999.9999,
+              "description": "Au plus 4 décimales."
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Prix HT de chaque kilomètre au-delà de `includedKm`, facturé au retour ; null si illimité ou sans tarif de dépassement."
+        }
+      },
+      "required": [
+        "mileagePackageId",
+        "name",
+        "isUnlimited",
+        "includedKm",
+        "overageRatePerKmHT"
+      ],
+      "description": "Kilométrage inclus et prix du dépassement."
+    },
+    "deductible": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "deductibleId": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Franchise du catalogue (`GET /deductibles`) ; null si elle a été supprimée depuis."
+            },
+            "name": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Nom de la franchise ; null si elle a été supprimée depuis."
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Description de la franchise ; null si absente."
+            },
+            "excessAmount": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Reste à charge du client en cas de sinistre, tel que fixé par le loueur, sans TVA appliquée. Jamais facturé ni compris dans les totaux : le prix de la franchise retenue est la ligne `DEDUCTIBLE` de `lines`."
+            }
+          },
+          "required": [
+            "deductibleId",
+            "name",
+            "description",
+            "excessAmount"
+          ],
+          "description": "Franchise retenue, figée au moment du calcul."
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Franchise retenue ; null sans franchise."
+    },
+    "deposit": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "depositId": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Caution du catalogue (`GET /deposits`) ; null si elle a été supprimée depuis."
+            },
+            "name": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Nom de la caution ; null si elle a été supprimée depuis."
+            },
+            "depositAmount": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Caution demandée au client, telle que fixée par le loueur, sans TVA appliquée. Hors `totalTTC` et hors `balance` : elle s’encaisse à part (paiement `DEPOSIT`)."
+            }
+          },
+          "required": [
+            "depositId",
+            "name",
+            "depositAmount"
+          ],
+          "description": "Caution retenue, figée au moment du calcul."
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Caution retenue ; null sans caution."
+    },
+    "options": {
+      "maxItems": 50,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "optionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Option du catalogue (`GET /options`)."
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Nom de l’option."
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "STANDARD",
+              "ADDITIONAL_DRIVER",
+              "YOUNG_DRIVER"
+            ],
+            "description": "`STANDARD` : option du catalogue ; `ADDITIONAL_DRIVER` : conducteur additionnel ; `YOUNG_DRIVER` : majoration jeune conducteur."
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Quantité vendue."
+          }
+        },
+        "required": [
+          "optionId",
+          "name",
+          "kind",
+          "quantity"
+        ],
+        "description": "Option vendue. Son prix se lit dans `lines` (ligne `OPTION` dont `refId` = `optionId`)."
+      },
+      "description": "Options vendues ; leurs montants se lisent dans `lines`."
+    },
+    "lines": {
+      "maxItems": 200,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "enum": [
+              "BASE",
+              "LEAD_TIME_ADJUSTMENT",
+              "DURATION_DISCOUNT",
+              "COMMERCIAL_DISCOUNT",
+              "WEEKEND_SURCHARGE",
+              "SHORT_DURATION_SURCHARGE",
+              "MILEAGE",
+              "DEDUCTIBLE",
+              "OPTION",
+              "CHARGE",
+              "PROMO",
+              "MILEAGE_OVERAGE",
+              "MODIFICATION"
+            ],
+            "description": "Règle qui a produit la ligne : `BASE` (prix de location), `LEAD_TIME_ADJUSTMENT` (délai de réservation), `DURATION_DISCOUNT` (remise de durée), `COMMERCIAL_DISCOUNT` (remise commerciale), `WEEKEND_SURCHARGE` et `SHORT_DURATION_SURCHARGE` (majorations), `MILEAGE` (forfait kilométrique), `DEDUCTIBLE` "
+          },
+          "label": {
+            "type": "string",
+            "description": "Libellé affichable ; ne pas l’analyser, lire `key`."
+          },
+          "refId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Élément à l’origine de la ligne : `optionId` pour `OPTION`, identifiant du frais pour `CHARGE` et `MILEAGE_OVERAGE` d’une location ; null sinon."
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Nombre d’exemplaires (option) ; 1 pour les autres lignes."
+          },
+          "unitPriceHT": {
+            "type": "number",
+            "description": "Prix HT d’un exemplaire pour toute la période (`OPTION`) ; égal à `amountHT` sinon. Indicatif, arrondi à l’unité de la devise : `amountHT` fait foi, `unitPriceHT` × `quantity` peut différer d’une unité."
+          },
+          "unitPriceTTC": {
+            "type": "number",
+            "description": "Prix TTC d’un exemplaire pour toute la période (`OPTION`) ; égal à `amountTTC` sinon. Indicatif, arrondi à l’unité de la devise : `amountTTC` fait foi, `unitPriceTTC` × `quantity` peut différer d’une unité."
+          },
+          "amountHT": {
+            "type": "number",
+            "description": "Montant HT de la ligne, signé : négatif pour une remise."
+          },
+          "amountTTC": {
+            "type": "number",
+            "description": "Montant TTC de la ligne, signé : négatif pour une remise."
+          },
+          "ratePercent": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Au plus 2 décimales."
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Pourcentage appliqué (20 = 20 %) pour une remise de durée, une majoration, une franchise ou un forfait tarifés en pourcentage ; null pour les autres lignes et pour un montant saisi ou offert."
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "refId",
+          "quantity",
+          "unitPriceHT",
+          "unitPriceTTC",
+          "amountHT",
+          "amountTTC",
+          "ratePercent"
+        ],
+        "description": "Ligne de prix d’une offre, d’un devis ou d’une location."
+      },
+      "description": "Détail du prix, une ligne par règle appliquée, frais et dépassement kilométrique compris."
+    },
+    "promoCode": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 50
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Code promo utilisé ; null sans code."
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "EUR",
+        "XPF",
+        "CHF",
+        "CAD",
+        "GBP",
+        "USD",
+        "XOF"
+      ],
+      "description": "Devise de la location, figée à sa création : tous ses montants sont dans celle-ci."
+    },
+    "vatPercent": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Taux de TVA appliqué, en pourcentage (20 = 20 %) ; 0 en autoliquidation ou pour un loueur exonéré. Au plus 2 décimales."
+    },
+    "isVatReverseCharge": {
+      "type": "boolean",
+      "description": "true : autoliquidation de la TVA, `vatPercent` vaut 0 et `totalTTC` = `totalHT`."
+    },
+    "totalHT": {
+      "type": "number",
+      "description": "Total hors taxes ; fait foi. Égal à la somme des `lines[].amountHT`, sauf écart possible sur une location ancienne."
+    },
+    "vatAmount": {
+      "type": "number",
+      "description": "Montant de la TVA : `totalTTC − totalHT`."
+    },
+    "totalTTC": {
+      "type": "number",
+      "description": "Total toutes taxes comprises, montant de la pièce : inchangé par une annulation, caution et franchise exclues. Fait foi ; égal à la somme des `lines[].amountTTC`, sauf écart possible sur une location ancienne."
+    },
+    "balance": {
+      "type": "object",
+      "properties": {
+        "totalTTC": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Montant exigible : `totalTTC` de la location, 0 si elle est annulée."
+        },
+        "paidAmount": {
+          "type": "number",
+          "description": "Net encaissé : paiements validés moins remboursements validés, caution exclue."
+        },
+        "pendingDebitAmount": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Prélèvements SEPA soumis, pas encore réglés : ni dans `paidAmount`, ni dans `dueAmount` ; ils y passent au règlement (rejetés, ils reviennent dans `dueAmount`). 0 sans prélèvement en cours."
+        },
+        "dueAmount": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Reste à payer : `totalTTC − paidAmount − pendingDebitAmount`, 0 au minimum ; plafond d’un encaissement (`422 PAYMENT_EXCEEDS_DUE`)."
+        },
+        "overpaidAmount": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Trop-perçu : `paidAmount − totalTTC`, 0 au minimum ; à rembourser ou à conserver par le loueur."
+        }
+      },
+      "required": [
+        "totalTTC",
+        "paidAmount",
+        "pendingDebitAmount",
+        "dueAmount",
+        "overpaidAmount"
+      ],
+      "description": "Solde de la location dans sa devise ; la caution n’y entre jamais. Tant que `paidAmount + pendingDebitAmount ≤ totalTTC`, `totalTTC = paidAmount + pendingDebitAmount + dueAmount` ; au-delà, `dueAmount` vaut 0."
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 2000
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Note libre de la location ; null si vide."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Instant de création."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Instant de la dernière modification."
+    }
+  },
+  "description": "Location, dans la même représentation pour la lecture, la liste et chaque écriture. Montants dans `currency`, voir [Montants et TVA](https://docs.lexio.rent/montants-et-tva)."
+}

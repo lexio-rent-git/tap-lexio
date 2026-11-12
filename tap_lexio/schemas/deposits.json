@@ -1,0 +1,90 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifiant de la caution."
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "EUR",
+        "XPF",
+        "CHF",
+        "CAD",
+        "GBP",
+        "USD",
+        "XOF"
+      ],
+      "description": "Devise ISO 4217 : tous les montants de la ressource sont dans cette devise."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Nom affiché au client."
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 500
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Description libre ; null si absente."
+    },
+    "categoryId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Catégorie tarifaire à laquelle l’élément est réservé ; null : toutes les catégories."
+    },
+    "depositAmount": {
+      "type": "number",
+      "description": "Montant demandé en garantie au client, rendu après la location sauf retenue décidée par le loueur. Hors total de la location et sans TVA."
+    },
+    "method": {
+      "type": "string",
+      "enum": [
+        "CREDIT_CARD",
+        "CASH",
+        "TRANSFER",
+        "CHECK",
+        "SWIKLY",
+        "STRIPE",
+        "TYLLT",
+        "MOBILE_MONEY",
+        "OTHER"
+      ],
+      "description": "Moyen par lequel la caution est garantie. Une caution `STRIPE` ne se saisit pas sur une location par `POST /rentals/{rentalId}/payments`."
+    },
+    "isDefault": {
+      "type": "boolean",
+      "description": "Caution retenue quand une offre omet `depositId` et que la franchise retenue n’a pas de caution liée active : défaut de la catégorie du véhicule, sinon défaut global. Un seul défaut par catégorie et un seul global ; un défaut est toujours actif."
+    },
+    "isActive": {
+      "type": "boolean",
+      "description": "false : retiré de la vente ; les locations qui le portent le gardent."
+    },
+    "displayOrder": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Rang d’affichage ; ordre de la liste."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Dernière modification."
+    }
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifiant du forfait kilométrique."
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "EUR",
+        "XPF",
+        "CHF",
+        "CAD",
+        "GBP",
+        "USD",
+        "XOF"
+      ],
+      "description": "Devise ISO 4217 : tous les montants de la ressource sont dans cette devise."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Nom affiché au client."
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 500
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Description libre ; null si absente."
+    },
+    "price": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "const": "FIXED_PER_DAY",
+              "description": "Prix fixe par jour facturé."
+            },
+            "amountHT": {
+              "type": "number",
+              "description": "Prix HT par jour facturé ; 0 : offert."
+            }
+          },
+          "required": [
+            "mode",
+            "amountHT"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "const": "PERCENT_OF_RENTAL",
+              "description": "Pourcentage du prix de location du véhicule."
+            },
+            "percent": {
+              "type": "number",
+              "minimum": 0.01,
+              "maximum": 100,
+              "description": "Pourcentage du tarif journalier HT moyen, par jour facturé, avant remises et majorations. Au plus 2 décimales."
+            }
+          },
+          "required": [
+            "mode",
+            "percent"
+          ]
+        }
+      ],
+      "description": "Prix HT du forfait pour le client.",
+      "type": "object"
+    },
+    "tiers": {
+      "minItems": 1,
+      "maxItems": 20,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fromDay": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Le palier vaut pour une location d’au moins ce nombre de jours facturés."
+          },
+          "dailyKm": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Kilomètres inclus par jour facturé ; null : kilométrage illimité."
+          }
+        },
+        "required": [
+          "fromDay",
+          "dailyKm"
+        ]
+      },
+      "description": "Kilomètres inclus par jour selon la durée : s’applique le palier de plus grand `fromDay` atteint par les jours facturés. Le prix HT du kilomètre au-delà se règle par catégorie (`overageRatePerKmHT`, `PATCH /categories/{categoryId}`)."
+    },
+    "isDefault": {
+      "type": "boolean",
+      "description": "Forfait retenu quand une offre omet `mileagePackageId`. Au plus un par organisation : en désigner un autre retire ce statut à l’ancien ; un forfait par défaut est toujours actif. Sans forfait par défaut : kilométrage illimité."
+    },
+    "isActive": {
+      "type": "boolean",
+      "description": "false : forfait retiré de la vente."
+    },
+    "displayOrder": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Rang d’affichage ; ordre de la liste."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Dernière modification."
+    }
+  }
+}

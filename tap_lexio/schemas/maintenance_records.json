@@ -1,0 +1,116 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifiant de l’entretien."
+    },
+    "vehicleId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Véhicule entretenu (`GET /vehicles/{vehicleId}`)."
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "EUR",
+        "XPF",
+        "CHF",
+        "CAD",
+        "GBP",
+        "USD",
+        "XOF"
+      ],
+      "description": "Devise ISO 4217 : tous les montants de la ressource sont dans cette devise."
+    },
+    "operationCodes": {
+      "minItems": 1,
+      "maxItems": 30,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Opérations réalisées (`GET /maintenance-operations`), l’opération principale en premier."
+    },
+    "interventionDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Jour de l’intervention, `YYYY-MM-DD`, fuseau du loueur ; jamais dans le futur."
+    },
+    "odometerKm": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000000,
+      "description": "Kilométrage au compteur lors de l’intervention."
+    },
+    "costHT": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Coût HT de l’intervention ; 0 si non renseigné."
+    },
+    "supplier": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 200
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Garage ou prestataire ; null si absent."
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 1000
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Notes libres ; null si absentes."
+    },
+    "invoice": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "description": "Adresse signée et temporaire du fichier : ne la conservez pas, relisez la ressource pour en obtenir une nouvelle."
+            },
+            "expiresAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Instant où l’adresse cesse d’être valable."
+            }
+          },
+          "required": [
+            "url",
+            "expiresAt"
+          ],
+          "description": "Fichier téléchargeable par une adresse signée et temporaire."
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Facture déposée dans Lexio, URL signée valable une heure, à ne pas stocker ; null sans facture."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Création, heure du loueur avec décalage."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Dernière modification."
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifiant du lieu."
+    },
+    "name": {
+      "type": "string",
+      "description": "Nom affiché au client."
+    },
+    "address": {
+      "type": "string",
+      "description": "Adresse postale, en une ligne."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "AGENCY",
+        "AIRPORT",
+        "STATION",
+        "HOTEL",
+        "OTHER"
+      ],
+      "description": "Nature du lieu."
+    },
+    "isActive": {
+      "type": "boolean",
+      "description": "false : lieu qui n’est plus proposé."
+    },
+    "displayOrder": {
+      "type": "integer",
+      "description": "Rang d’affichage ; ordre de la liste."
+    }
+  }
+}

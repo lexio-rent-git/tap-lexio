@@ -1,0 +1,103 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifiant de la catégorie tarifaire."
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 100,
+      "description": "Nom de la catégorie, unique dans l’organisation (casse ignorée)."
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 500
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Description libre ; null si absente."
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "EUR",
+        "XPF",
+        "CHF",
+        "CAD",
+        "GBP",
+        "USD",
+        "XOF"
+      ],
+      "description": "Devise ISO 4217 : tous les montants de la ressource sont dans cette devise."
+    },
+    "baseDailyPriceHT": {
+      "type": "number",
+      "description": "Prix journalier HT de base. Le prix de chaque saison en découle : base × `priceFactor` de la saison (`GET /seasons`)."
+    },
+    "seasonPrices": {
+      "maxItems": 50,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "seasonSlug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50,
+            "pattern": "^[a-z0-9_]+$",
+            "description": "Saison (`GET /seasons/{slug}`)."
+          },
+          "dailyPriceHT": {
+            "type": "number",
+            "description": "Prix journalier HT de la catégorie dans cette saison."
+          }
+        },
+        "required": [
+          "seasonSlug",
+          "dailyPriceHT"
+        ]
+      },
+      "description": "Prix journalier HT par saison, une entrée par saison de l’organisation ; recalculé par Lexio quand le prix de base ou un `priceFactor` change."
+    },
+    "overageRatePerKmHT": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 999999.9999,
+          "description": "Au plus 4 décimales."
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Prix HT de chaque kilomètre au-delà des kilomètres inclus, 4 décimales au plus ; null : aucun prix de dépassement défini."
+    },
+    "vehicleCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Véhicules rattachés, archivés et inactifs compris ; non nul, il empêche la suppression."
+    },
+    "activeVehicleCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Véhicules rattachés, actifs et non archivés."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Création, heure du loueur avec décalage."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Dernière modification."
+    }
+  }
+}
